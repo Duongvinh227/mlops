@@ -16,14 +16,12 @@ from problem_config import ProblemConst, create_prob_config
 from raw_data_processor import RawDataProcessor
 from utils import AppConfig, AppPath
 
-PREDICTOR_API_PORT = 8000
-
+PREDICTOR_API_PORT = 22
 
 class Data(BaseModel):
     id: str
     rows: list
     columns: list
-
 
 class ModelPredictor:
     def __init__(self, config_file_path):
@@ -48,8 +46,9 @@ class ModelPredictor:
 
     def detect_drift(self, feature_df) -> int:
         # watch drift between coming requests and training data
-        time.sleep(0.02)
-        return random.choice([0, 1])
+        # time.sleep(0.02)
+        # return random.choice([0, 1])
+        return 0
 
     def predict(self, data: Data):
         start_time = time.time()
@@ -87,10 +86,10 @@ class ModelPredictor:
         feature_df.to_parquet(output_file_path, index=False)
         return output_file_path
 
-
 class PredictorApi:
-    def __init__(self, predictor: ModelPredictor):
+    def __init__(self, predictor: ModelPredictor, predictor_2 : ModelPredictor):
         self.predictor = predictor
+        self.predictor_2 = predictor_2
         self.app = FastAPI()
 
         @self.app.get("/")
@@ -101,6 +100,13 @@ class PredictorApi:
         async def predict(data: Data, request: Request):
             self._log_request(request)
             response = self.predictor.predict(data)
+            self._log_response(response)
+            return response
+
+        @self.app.post("/phase-1/prob-2/predict")
+        async def predict(data: Data, request: Request):
+            self._log_request(request)
+            response = self.predictor_2.predict(data)
             self._log_response(response)
             return response
 
@@ -115,7 +121,6 @@ class PredictorApi:
     def run(self, port):
         uvicorn.run(self.app, host="0.0.0.0", port=port)
 
-
 if __name__ == "__main__":
     default_config_path = (
         AppPath.MODEL_CONFIG_DIR
@@ -126,9 +131,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-path", type=str, default=default_config_path)
+    parser.add_argument("--config-path2", type=str, default=default_config_path)
     parser.add_argument("--port", type=int, default=PREDICTOR_API_PORT)
-    args = parser.parse_args()
 
+    args = parser.parse_args()
     predictor = ModelPredictor(config_file_path=args.config_path)
-    api = PredictorApi(predictor)
+    predictor_2 = ModelPredictor(config_file_path=args.config_path2)
+    api = PredictorApi(predictor, predictor_2)
     api.run(port=args.port)
+
+# python src/model_predictor.py --config-path data/model_config/phase-1/prob-1/model-1.yaml --config-path2 data/model_config/phase-1/prob-2/model-2.yaml --port 8000

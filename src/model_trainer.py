@@ -15,7 +15,6 @@ from problem_config import (
 from raw_data_processor import RawDataProcessor
 from utils import AppConfig
 
-
 class ModelTrainer:
     EXPERIMENT_NAME = "xgb-1"
 
@@ -38,8 +37,8 @@ class ModelTrainer:
             captured_x, captured_y = RawDataProcessor.load_capture_data(prob_config)
             captured_x = captured_x.to_numpy()
             captured_y = captured_y.to_numpy()
-            train_x = np.concatenate((train_x, captured_x))
-            train_y = np.concatenate((train_y, captured_y))
+            # train_x = np.concatenate((train_x, captured_x))
+            # train_y = np.concatenate((train_y, captured_y))
             logging.info(f"added {len(captured_x)} captured samples")
 
         # train model
@@ -68,7 +67,6 @@ class ModelTrainer:
         )
         mlflow.end_run()
         logging.info("finish train_model")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

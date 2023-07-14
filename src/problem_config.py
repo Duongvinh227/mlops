@@ -1,11 +1,10 @@
 import json
 from utils import AppPath
 
-
 class ProblemConst:
     PHASE1 = "phase-1"
     PROB1 = "prob-1"
-
+    PROB2 = "prob-2"
 
 class ProblemConfig:
     # required inputs
@@ -37,12 +36,10 @@ class ProblemConfig:
     captured_x_path: str
     uncertain_y_path: str
 
-
 def load_feature_configs_dict(config_path: str) -> dict:
     with open(config_path) as f:
         features_config = json.load(f)
     return features_config
-
 
 def create_prob_config(phase_id: str, prob_id: str) -> ProblemConfig:
     prob_config = ProblemConfig()
@@ -93,7 +90,6 @@ def create_prob_config(phase_id: str, prob_id: str) -> ProblemConfig:
     )
 
     return prob_config
-
 
 def get_prob_config(phase_id: str, prob_id: str):
     prob_config = create_prob_config(phase_id, prob_id)

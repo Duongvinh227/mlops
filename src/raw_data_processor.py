@@ -7,7 +7,6 @@ from sklearn.model_selection import train_test_split
 
 from problem_config import ProblemConfig, ProblemConst, get_prob_config
 
-
 class RawDataProcessor:
     @staticmethod
     def build_category_features(data, categorical_cols=None):
@@ -23,6 +22,7 @@ class RawDataProcessor:
             df[col] = df[col].astype("category")
             category_index[col] = df[col].cat.categories
             df[col] = df[col].cat.codes
+        print(category_index)
         return df, category_index
 
     @staticmethod
